@@ -32,7 +32,7 @@ Run the `lsusb` command in the terminal again. If not listed reestart the PC and
 ...
 If the Xilinx, Inc. is listed, then run the `ifconfig -a` command in the terminal and make sure you see a network interface in the 10.0.0.x range, where x = 0 to 254:
 
-`[username@my_computer ~]$ ifconfig -a
+```[username@my_computer ~]$ ifconfig -a
 enp0s13f0u2: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         ether xx:xx:xx:xx:xx:xx txqueuelen 1000  (Ethernet)
         RX packets 0  bytes 0 (0.0 B)
@@ -74,7 +74,7 @@ wlo1: flags=XXXX<BROADCAST,MULTICAST>  mtu 1500
         RX packets 0  bytes 0 (0.0 B)
         RX errors 0  dropped 0  overruns 0  frame 0
         TX packets 0  bytes 0 (0.0 B)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0`
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0```
         
 Where xx:xx:xx:xx:xx:xx is a valid MAC address and xxx.xxx.xxx.xxx a valid IP Address.
 If you do not see any Network Interface with IP Address in the 10.0.0.x range as the example above, disconnect it and run the command `ifconfig -a` again. Notice that one of the network interfaces will not be listed this time, well that is the one you need to modify and set it to the required network range (10.0.0.x). So connect the SmartLynq again and run the command `sudo ifconfig name_of_the_network_interface 10.0.0.1 netmask 255.255.255.0` (you are going to need root privilage to do it):
@@ -83,7 +83,7 @@ If you do not see any Network Interface with IP Address in the 10.0.0.x range as
 
 Now run the command `ifconfig -a` one more time to verify the change. You should see the IP Address (10.0.0.1) listed as part of the Network Interface (enp0s20f0u7u1 in this example):
 
-`[root@my_computer ~]# ifconfig -a
+```[root@my_computer ~]# ifconfig -a
 enp0s13f0u2: flags=XXXX<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         ether xx:xx:xx:xx:xx:xx  txqueuelen 1000  (Ethernet)
         RX packets 0  bytes 0 (0.0 B)
@@ -96,5 +96,5 @@ enp0s20f0u7u1: flags=XXXX<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         RX packets 5766  bytes 1568955 (1.4 MiB)
         RX errors 0  dropped 0  overruns 0  frame 0
         TX packets 15  bytes 1521 (1.4 KiB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0`
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0```
 
