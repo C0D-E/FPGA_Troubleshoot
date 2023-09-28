@@ -14,7 +14,7 @@ Download the AMD Unified Installer for FPGAs & Adaptive SoCs 2023.1: Linux Self 
 **Solution**
 Open a terminal and list the USB devices using `lsusb`:
    
-`[username@my_computer~]$ lsusb
+~~~[username@my_computer~]$ lsusb
 Bus 004 Device 001: ID xxxx:000X Linux Foundation 3.0 root hub
 Bus 003 Device 006: ID xxxx:x0XX Logitech, Inc. M105 Optical Mouse
 Bus 003 Device 005: ID xxxx:XX0X Dell Computer Corp. QuietKey Keyboard
@@ -25,7 +25,7 @@ Bus 003 Device 004: ID xxxx:00XX Intel Corp. AX201 Bluetooth
 Bus 003 Device 001: ID xxxx:000X Linux Foundation 2.0 root hub
 Bus 002 Device 002: ID xxxx:XXXX Realtek Semiconductor Corp. RTL8153 Gigabit Ethernet Adapter
 Bus 002 Device 001: ID xxxx:000X Linux Foundation 3.0 root hub
-Bus 001 Device 001: ID xxxx:000X Linux Foundation 2.0 root hub`
+Bus 001 Device 001: ID xxxx:000X Linux Foundation 2.0 root hub~~~
 
 If the device is not listed, install the drivers, follow the instructions -> https://docs.xilinx.com/r/en-US/ug973-vivado-release-notes-install-license/Install-Cable-Drivers.
 Run the `lsusb` command in the terminal again. If not listed reestart the PC and run the command once more. If still not showing then the physical cable (try changing the cable that connects the SmartLynq to the PC) might be the problem.
