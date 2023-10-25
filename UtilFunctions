@@ -1,0 +1,19 @@
+#include <stdio.h>
+
+//USED FOR RTC MODULE
+void bcdToAscii(uint8_t bcd, char* ascii) {
+    ascii[0] = (bcd >> 4) + '0'; // Convert the upper 4 bits to ASCII
+    ascii[1] = (bcd & 0x0F) + '0'; // Convert the lower 4 bits to ASCII
+    ascii[2] = '\0'; // Null-terminate the string
+}
+
+int main() {
+    uint8_t bcdValue = 0x23; // Replace with your BCD value
+    char asciiValue[3]; // To hold the ASCII representation
+
+    bcdToAscii(bcdValue, asciiValue);
+
+    printf("BCD: 0x%X, ASCII: %s\n", bcdValue, asciiValue);
+
+    return 0;
+}
