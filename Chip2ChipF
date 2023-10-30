@@ -1,0 +1,160 @@
+#include <stdio.h>
+#include "platform.h"
+#include "xil_printf.h"
+
+
+#include "xparameters.h"
+#include "xgpio.h"
+#include "timer_service.h"
+
+#define GPIO_REMOTE_BASEADDR 0x7aa00000
+#define GPIO_REMOTE_LB_BASEADDR 0x7aa10000
+
+#define NTRIES 1000
+
+volatile unsigned int * gpio_c2c_status;
+volatile unsigned int * gpio_remote_read;
+volatile unsigned int * gpio_remote_write;
+volatile unsigned int * gpio_remote_lb_read;
+volatile unsigned int * gpio_remote_lb_write;
+volatile unsigned int * gpio_local_lb_read;
+volatile unsigned int * gpio_local_lb_write;
+
+void do_bitshift( ) {
+
+	unsigned int prev_read, cur_read;
+	unsigned int i, j;
+	unsigned int prev_stat, cur_stat;
+
+    prev_stat = * gpio_c2c_status;
+    printf("Initial status = 0x%08x\n", prev_stat );
+    prev_read = * gpio_remote_read;
+
+    j = 1;
+    for( i = 0; i < 32; i ++ ) {
+    	* gpio_remote_write = j;
+    	cur_read = * gpio_remote_read;
+    	if( cur_read != prev_read ) {
+    		printf("Written = 0x%08x : Read = 0x%08x : Status = 0x%08x\n",
+    				j, cur_read, * gpio_c2c_status );
+    		prev_read = cur_read;
+    	}
+    	cur_stat = * gpio_c2c_status;
+    	if( cur_stat != prev_stat ) {
+    		printf("Status changed from 0x%08x to 0x%08x\n", prev_stat, cur_stat );
+    		prev_stat = cur_stat;
+    	}
+    	j <<= 1;
+    }
+
+
+}
+
+void do_local_io( ) {
+
+	unsigned int t1_start, t1_stop, t1_interval;
+	unsigned int t2_start, t2_stop, t2_interval;
+	unsigned int t3_start, t3_stop, t3_interval;
+	unsigned int i, j;
+
+	// write once. read once
+	t1_start = timer_start( );
+	for( i = 0; i < NTRIES; i ++ ) {
+		* gpio_local_lb_write = i;
+		j = * gpio_local_lb_read;
+	}
+	t1_stop = timer_stop( );
+	t1_interval = t1_stop - t1_start;
+
+	// write once, read twice
+	t2_start = timer_start( );
+	for( i = 0; i < NTRIES; i ++ ) {
+		* gpio_local_lb_write = i;
+		j = * gpio_local_lb_read;
+		j = * gpio_local_lb_read;
+	}
+	t2_stop = timer_stop( );
+	t2_interval = t2_stop - t2_start;
+
+	// write twice, read once
+	t3_start = timer_start( );
+	for( i = 0; i < NTRIES; i ++ ) {
+		* gpio_local_lb_write = i;
+		j = * gpio_local_lb_read;
+		* gpio_local_lb_write = i;
+	}
+	t3_stop = timer_stop( );
+	t3_interval = t3_stop - t3_start;
+
+	printf("Local IO: %d-%d-%d ticks for %d tries\n", t1_interval, t2_interval, t3_interval, NTRIES );
+	printf("          Read = %d Write = %d\n", t2_interval - t1_interval, t3_interval - t1_interval );
+}
+
+void do_remote_io( ) {
+
+	unsigned int t1_start, t1_stop, t1_interval;
+	unsigned int t2_start, t2_stop, t2_interval;
+	unsigned int t3_start, t3_stop, t3_interval;
+	unsigned int i, j;
+
+	// write once. read once
+	t1_start = timer_start( );
+	for( i = 0; i < NTRIES; i ++ ) {
+		* gpio_remote_lb_write = i;
+		j = * gpio_remote_lb_read;
+	}
+	t1_stop = timer_stop( );
+	t1_interval = t1_stop - t1_start;
+
+	// write once, read twice
+	t2_start = timer_start( );
+	for( i = 0; i < NTRIES; i ++ ) {
+		* gpio_remote_lb_write = i;
+		j = * gpio_remote_lb_read;
+		j = * gpio_remote_lb_read;
+	}
+	t2_stop = timer_stop( );
+	t2_interval = t2_stop - t2_start;
+
+	// write twice, read once
+	t3_start = timer_start( );
+	for( i = 0; i < NTRIES; i ++ ) {
+		* gpio_remote_lb_write = i;
+		j = * gpio_remote_lb_read;
+		* gpio_remote_lb_write = i;
+	}
+	t3_stop = timer_stop( );
+	t3_interval = t3_stop - t3_start;
+
+	printf("Remote IO: %d-%d-%d ticks for %d tries\n", t1_interval, t2_interval, t3_interval, NTRIES );
+	printf("          Read = %d Write = %d\n", t2_interval - t1_interval, t3_interval - t1_interval );
+
+}
+
+int main()
+{
+
+	gpio_c2c_status = ( unsigned int * ) XPAR_GPIO_C2C_STATUS_BASEADDR;
+	gpio_remote_read = ( unsigned int * ) GPIO_REMOTE_BASEADDR;
+	gpio_remote_write = ( unsigned int * ) ( GPIO_REMOTE_BASEADDR + XGPIO_DATA2_OFFSET );
+
+	gpio_remote_lb_read = ( unsigned int * ) GPIO_REMOTE_LB_BASEADDR;
+	gpio_remote_lb_write = ( unsigned int * ) ( GPIO_REMOTE_LB_BASEADDR + XGPIO_DATA2_OFFSET );
+	gpio_local_lb_read = ( unsigned int * ) XPAR_GPIO_LOCAL_LOOPBACK_BASEADDR;
+	gpio_local_lb_write = ( unsigned int * ) ( XPAR_GPIO_LOCAL_LOOPBACK_BASEADDR + XGPIO_DATA2_OFFSET );
+
+    init_platform();
+
+    timer_init( );
+
+    print("c2cm_siod01\n\r");
+
+    do_bitshift( );
+
+    do_local_io( );
+
+    do_remote_io( );
+
+    cleanup_platform();
+    return 0;
+}
